@@ -1,0 +1,19 @@
+precision mediump image2D;
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(push_constant) uniform Properties {
+    float threshold;
+    float transform[3];
+};
+
+layout(set = 0, binding = 0, rgba8) uniform readonly  image2D src_image;
+layout(set = 0, binding = 1, rgba8) uniform writeonly image2D dst_image;
+
+void main()
+{
+    vec4 color = imageLoad(src_image, ivec2(gl_GlobalInvocationID.xy));
+    float gray = color.r * transform[0] + color.g * transform[1] + color.b * transform[2];
+
+    imageStore(dst_image, ivec2(gl_GlobalInvocationID.xy), gray > threshold ? color : vec4(0.0));
+}
